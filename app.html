@@ -9,6 +9,7 @@
     />
     <meta name="theme-color" content="#f2eee6" />
     <title>FlowScore - Practice Stand</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -37,7 +38,14 @@
 
       <aside class="controls" aria-label="Playback controls">
         <div class="brand">
-          <span class="mark" aria-hidden="true"></span>
+          <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <circle class="mark-frame" cx="24" cy="24" r="20" />
+            <path class="mark-line" d="M12 17c7-4 17-4 24 0" />
+            <path class="mark-line" d="M12 24c8 4 16 4 24 0" />
+            <path class="mark-line" d="M12 31c7-4 17-4 24 0" />
+            <circle class="mark-note" cx="18" cy="31" r="4" />
+            <path class="mark-stem" d="M22 29V16" />
+          </svg>
           <div>
             <p>FlowScore</p>
             <span><a href="./index.html">Home</a></span>

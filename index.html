@@ -15,6 +15,7 @@
     />
     <meta property="og:type" content="website" />
     <title>FlowScore - Hands-free PDF practice</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -26,7 +27,14 @@
   <body class="home-page">
     <header class="site-header" aria-label="Site header">
       <a class="brand home-brand" href="./index.html" aria-label="FlowScore home">
-        <span class="mark" aria-hidden="true"></span>
+        <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <circle class="mark-frame" cx="24" cy="24" r="20" />
+          <path class="mark-line" d="M12 17c7-4 17-4 24 0" />
+          <path class="mark-line" d="M12 24c8 4 16 4 24 0" />
+          <path class="mark-line" d="M12 31c7-4 17-4 24 0" />
+          <circle class="mark-note" cx="18" cy="31" r="4" />
+          <path class="mark-stem" d="M22 29V16" />
+        </svg>
         <div>
           <p>FlowScore</p>
           <span>PDF autoscroll</span>
