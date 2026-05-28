@@ -35,6 +35,7 @@ const elements = {
   zoomValue: document.querySelector("#zoomValue"),
   backButton: document.querySelector("#backButton"),
   topButton: document.querySelector("#topButton"),
+  controlsModeToggle: document.querySelector("#controlsModeToggle"),
   botToast: document.querySelector("#botToast"),
   botMessage: document.querySelector("#botMessage"),
   botClose: document.querySelector("#botClose"),
@@ -53,6 +54,10 @@ const botUploadMessages = [
 const botStorage = {
   muted: "flowscore.bo0thovenMuted",
   welcomed: "flowscore.bo0thovenWelcomed",
+};
+
+const controlsStorage = {
+  mini: "flowscore.miniControls",
 };
 
 let botHideTimer = null;
@@ -76,6 +81,17 @@ function updatePlayLabel() {
 function setStatus(message, tone = "") {
   elements.statusLine.textContent = message;
   elements.statusLine.dataset.tone = tone;
+}
+
+function miniControlsEnabled() {
+  return readStorage(window.localStorage, controlsStorage.mini) === "true";
+}
+
+function setMiniControls(enabled) {
+  document.body.classList.toggle("is-mini-controls", enabled);
+  elements.controlsModeToggle.textContent = enabled ? "Full controls" : "Mini controls";
+  elements.controlsModeToggle.setAttribute("aria-pressed", String(enabled));
+  writeStorage(window.localStorage, controlsStorage.mini, String(enabled));
 }
 
 function readStorage(storage, key) {
@@ -342,6 +358,10 @@ elements.playButton.addEventListener("click", () => {
   }
 });
 
+elements.controlsModeToggle.addEventListener("click", () => {
+  setMiniControls(!document.body.classList.contains("is-mini-controls"));
+});
+
 elements.speedRange.addEventListener("input", (event) => {
   changeSpeed(event.target.value);
 });
@@ -449,5 +469,6 @@ window.addEventListener("resize", () => {
 changeSpeed(state.speed);
 changeZoom(110);
 updatePlayLabel();
+setMiniControls(miniControlsEnabled());
 updateBo0thovenWakeLink();
 greetWithBo0thoven();
