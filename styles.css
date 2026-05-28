@@ -280,6 +280,8 @@ input[type="file"] {
   gap: 18px;
   min-height: 100%;
   padding: 26px 14px 60vh;
+  transform-origin: top center;
+  transition: transform 120ms ease;
 }
 
 .page-canvas {

@@ -16,7 +16,7 @@ while practicing.
 - Start, pause, and resume steady autoscroll.
 - Adjust scroll pace and page size.
 - Jump back ten seconds or return to the top.
-- Use keyboard shortcuts: Space to play/pause, Arrow Up/Down to change speed,
+- Use keyboard shortcuts: Space to play/pause, Arrow Left/Right to change speed,
   and Home to return to the top.
 
 PDF files are read locally by the browser. This prototype does not upload music

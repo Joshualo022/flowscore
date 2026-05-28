@@ -9,6 +9,7 @@ const state = {
   playing: false,
   speed: 24,
   zoom: 1.1,
+  renderedZoom: 1.1,
   animationId: null,
   lastFrameTime: 0,
   scrollPosition: 0,
@@ -34,7 +35,7 @@ const elements = {
   topButton: document.querySelector("#topButton"),
 };
 
-function setEnabled(enabled) {
+function setControlsEnabled(enabled) {
   elements.playButton.disabled = !enabled;
   elements.backButton.disabled = !enabled;
   elements.topButton.disabled = !enabled;
@@ -93,13 +94,25 @@ function tick(timestamp) {
   state.animationId = requestAnimationFrame(tick);
 }
 
-async function renderPdf() {
+function getScrollProgress() {
+  const maxScroll = elements.viewer.scrollHeight - elements.viewer.clientHeight;
+  return maxScroll > 0 ? elements.viewer.scrollTop / maxScroll : 0;
+}
+
+function applyZoomPreview() {
+  const previewScale = state.zoom / state.renderedZoom;
+  elements.paper.style.transform = `scale(${previewScale})`;
+}
+
+async function renderPdf({ preserveScroll = false } = {}) {
   if (!state.pdf) return;
 
   const renderId = (state.renderId += 1);
+  const scrollProgress = preserveScroll ? getScrollProgress() : 0;
   stopScroll();
-  setEnabled(false);
+  setControlsEnabled(false);
   document.body.classList.add("is-loading");
+  elements.paper.style.transform = "";
   setStatus(`Rendering ${state.fileName || "score"}...`);
   elements.paper.replaceChildren();
   elements.viewer.scrollTop = 0;
@@ -133,7 +146,15 @@ async function renderPdf() {
   if (renderId !== state.renderId) return;
 
   document.body.classList.remove("is-loading");
-  setEnabled(true);
+  setControlsEnabled(true);
+  state.renderedZoom = state.zoom;
+
+  if (preserveScroll) {
+    const maxScroll = elements.viewer.scrollHeight - elements.viewer.clientHeight;
+    state.scrollPosition = Math.max(0, maxScroll * scrollProgress);
+    elements.viewer.scrollTop = state.scrollPosition;
+  }
+
   setStatus(
     `${state.fileName || "Score"} ready. ${state.pdf.numPages} ${
       state.pdf.numPages === 1 ? "page" : "pages"
@@ -149,7 +170,7 @@ function revealViewer() {
 async function loadFile(file) {
   if (!file) return;
 
-  setEnabled(false);
+  setControlsEnabled(false);
   stopScroll();
   document.body.classList.add("is-loading");
   setStatus(`Opening ${file.name}...`);
@@ -174,7 +195,7 @@ async function loadFile(file) {
     elements.emptyMessage.textContent =
       "That file could not be opened as a PDF. Please choose another score.";
     setStatus("Could not open that PDF.", "error");
-    setEnabled(false);
+    setControlsEnabled(false);
   } finally {
     document.body.classList.remove("is-loading");
     elements.pdfInput.value = "";
@@ -192,6 +213,11 @@ function changeZoom(value) {
   state.zoom = Number(value) / 100;
   elements.zoomRange.value = String(value);
   elements.zoomValue.value = `${value}%`;
+}
+
+async function commitZoom() {
+  if (!state.pdf) return;
+  await renderPdf({ preserveScroll: true });
 }
 
 elements.pdfInput.addEventListener("change", (event) => {
@@ -214,9 +240,17 @@ elements.speedRange.addEventListener("input", (event) => {
   changeSpeed(event.target.value);
 });
 
-elements.zoomRange.addEventListener("input", async (event) => {
+elements.zoomRange.addEventListener("input", (event) => {
   changeZoom(event.target.value);
-  await renderPdf();
+  if (state.pdf) {
+    stopScroll();
+    applyZoomPreview();
+    setStatus("Previewing page size. Release to render.");
+  }
+});
+
+elements.zoomRange.addEventListener("change", async () => {
+  await commitZoom();
 });
 
 elements.backButton.addEventListener("click", () => {
@@ -241,11 +275,13 @@ window.addEventListener("keydown", (event) => {
     state.playing ? stopScroll() : startScroll();
   }
 
-  if (event.key === "ArrowUp") {
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
     changeSpeed(Math.min(90, state.speed + 2));
   }
 
-  if (event.key === "ArrowDown") {
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
     changeSpeed(Math.max(4, state.speed - 2));
   }
 
@@ -259,7 +295,7 @@ window.addEventListener("keydown", (event) => {
 window.addEventListener("resize", () => {
   window.clearTimeout(state.resizeTimer);
   state.resizeTimer = window.setTimeout(() => {
-    if (state.pdf) renderPdf();
+    if (state.pdf) renderPdf({ preserveScroll: true });
   }, 180);
 });
 
