@@ -39,6 +39,7 @@ const elements = {
   botMessage: document.querySelector("#botMessage"),
   botClose: document.querySelector("#botClose"),
   botSilence: document.querySelector("#botSilence"),
+  botWake: document.querySelector("#botWake"),
 };
 
 const botUploadMessages = [
@@ -93,8 +94,20 @@ function writeStorage(storage, key, value) {
   }
 }
 
+function removeStorage(storage, key) {
+  try {
+    storage.removeItem(key);
+  } catch {
+    // Storage can be unavailable in private or restricted browser modes.
+  }
+}
+
 function bo0thovenMuted() {
   return readStorage(window.localStorage, botStorage.muted) === "true";
+}
+
+function updateBo0thovenWakeLink() {
+  elements.botWake.hidden = !bo0thovenMuted();
 }
 
 function hideBo0thoven() {
@@ -380,6 +393,13 @@ elements.botClose.addEventListener("click", hideBo0thoven);
 elements.botSilence.addEventListener("click", () => {
   writeStorage(window.localStorage, botStorage.muted, "true");
   hideBo0thoven();
+  updateBo0thovenWakeLink();
+});
+
+elements.botWake.addEventListener("click", () => {
+  removeStorage(window.localStorage, botStorage.muted);
+  updateBo0thovenWakeLink();
+  showBo0thoven("Systems back online. I will keep my comments tasteful.");
 });
 
 elements.viewer.addEventListener("scroll", () => {
@@ -429,4 +449,5 @@ window.addEventListener("resize", () => {
 changeSpeed(state.speed);
 changeZoom(110);
 updatePlayLabel();
+updateBo0thovenWakeLink();
 greetWithBo0thoven();

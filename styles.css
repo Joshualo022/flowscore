@@ -313,6 +313,29 @@ input[type="file"] {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
+.bot-wake {
+  display: block;
+  min-height: auto;
+  margin: 12px auto 0;
+  border: 0;
+  background: transparent;
+  color: #8a8075;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.bot-wake:hover {
+  background: transparent;
+  color: #2d2a25;
+  transform: none;
+}
+
+.bot-wake[hidden] {
+  display: none;
+}
+
 .paper {
   display: grid;
   justify-content: center;
