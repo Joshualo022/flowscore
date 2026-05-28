@@ -35,7 +35,26 @@ const elements = {
   zoomValue: document.querySelector("#zoomValue"),
   backButton: document.querySelector("#backButton"),
   topButton: document.querySelector("#topButton"),
+  botToast: document.querySelector("#botToast"),
+  botMessage: document.querySelector("#botMessage"),
+  botClose: document.querySelector("#botClose"),
+  botSilence: document.querySelector("#botSilence"),
 };
+
+const botUploadMessages = [
+  "Score detected. I have tuned the scroll engines.",
+  "Fresh pages loaded. Hands on the instrument, I will watch the paper.",
+  "Your score is on the stand. May the repeats be merciful.",
+  "PDF secured. The page-turning department has been dismissed.",
+  "Ready when you are. I will keep the music moving.",
+];
+
+const botStorage = {
+  muted: "flowscore.bo0thovenMuted",
+  welcomed: "flowscore.bo0thovenWelcomed",
+};
+
+let botHideTimer = null;
 
 function setControlsEnabled(enabled) {
   elements.playButton.disabled = !enabled;
@@ -56,6 +75,58 @@ function updatePlayLabel() {
 function setStatus(message, tone = "") {
   elements.statusLine.textContent = message;
   elements.statusLine.dataset.tone = tone;
+}
+
+function readStorage(storage, key) {
+  try {
+    return storage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(storage, key, value) {
+  try {
+    storage.setItem(key, value);
+  } catch {
+    // Storage can be unavailable in private or restricted browser modes.
+  }
+}
+
+function bo0thovenMuted() {
+  return readStorage(window.localStorage, botStorage.muted) === "true";
+}
+
+function hideBo0thoven() {
+  window.clearTimeout(botHideTimer);
+  elements.botToast.hidden = true;
+}
+
+function showBo0thoven(message, { autoHide = true } = {}) {
+  if (bo0thovenMuted()) return;
+
+  window.clearTimeout(botHideTimer);
+  elements.botMessage.textContent = message;
+  elements.botToast.hidden = false;
+
+  if (autoHide) {
+    botHideTimer = window.setTimeout(hideBo0thoven, 8500);
+  }
+}
+
+function greetWithBo0thoven() {
+  if (readStorage(window.sessionStorage, botStorage.welcomed) === "true") return;
+
+  writeStorage(window.sessionStorage, botStorage.welcomed, "true");
+  window.setTimeout(() => {
+    showBo0thoven("Welcome to FlowScore. bo0thoven is on standby.");
+  }, 700);
+}
+
+function celebrateUploadWithBo0thoven() {
+  const message =
+    botUploadMessages[Math.floor(Math.random() * botUploadMessages.length)];
+  showBo0thoven(message);
 }
 
 function stopScroll() {
@@ -187,6 +258,7 @@ async function loadFile(file) {
 
     await renderPdf();
     revealViewer();
+    celebrateUploadWithBo0thoven();
   } catch (error) {
     console.error(error);
     state.pdf = null;
@@ -303,6 +375,13 @@ elements.topButton.addEventListener("click", () => {
   elements.viewer.scrollTop = 0;
 });
 
+elements.botClose.addEventListener("click", hideBo0thoven);
+
+elements.botSilence.addEventListener("click", () => {
+  writeStorage(window.localStorage, botStorage.muted, "true");
+  hideBo0thoven();
+});
+
 elements.viewer.addEventListener("scroll", () => {
   if (!state.playing) {
     state.scrollPosition = elements.viewer.scrollTop;
@@ -350,3 +429,4 @@ window.addEventListener("resize", () => {
 changeSpeed(state.speed);
 changeZoom(110);
 updatePlayLabel();
+greetWithBo0thoven();

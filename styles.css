@@ -486,6 +486,128 @@ input[type="range"] {
   margin: 0;
 }
 
+.bot-toast {
+  position: fixed;
+  right: 356px;
+  bottom: 24px;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px 14px;
+  width: min(390px, calc(100vw - 48px));
+  padding: 14px;
+  border: 1px solid rgba(33, 31, 27, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.96);
+  box-shadow: 0 18px 45px rgba(46, 39, 31, 0.18);
+  transform: translateY(14px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.bot-toast:not([hidden]) {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bot-toast[hidden] {
+  display: none;
+}
+
+.bot-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 2px solid #2d2a25;
+  border-radius: 8px;
+  background: #efe7d9;
+}
+
+.bot-avatar::before,
+.bot-avatar::after {
+  content: "";
+  position: absolute;
+  top: 16px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2d2a25;
+}
+
+.bot-avatar::before {
+  left: 13px;
+}
+
+.bot-avatar::after {
+  right: 13px;
+}
+
+.bot-avatar span {
+  position: absolute;
+  right: 10px;
+  bottom: 12px;
+  left: 10px;
+  height: 2px;
+  border-radius: 999px;
+  background: #2d2a25;
+}
+
+.bot-avatar span::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 2px;
+  height: 9px;
+  background: #2d2a25;
+  transform: translateX(-50%);
+}
+
+.bot-copy {
+  min-width: 0;
+}
+
+.bot-name {
+  margin: 0 0 4px;
+  color: #7c4f2d;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bot-copy p:last-child {
+  margin: 0;
+  color: #3c3832;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.bot-actions {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bot-actions button {
+  min-height: 34px;
+  padding: 0 11px;
+  background: #fffaf1;
+  color: #2d2a25;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.bot-actions button:hover {
+  background: #efe7d9;
+  color: #2d2a25;
+}
+
 @media (max-width: 820px) {
   .site-header {
     position: static;
@@ -538,6 +660,15 @@ input[type="range"] {
   .control-group,
   .button-grid {
     grid-column: span 2;
+  }
+
+  .bot-toast {
+    top: 14px;
+    right: 14px;
+    bottom: auto;
+    left: auto;
+    width: min(330px, calc(100vw - 28px));
+    padding: 12px;
   }
 }
 .stand-page {
