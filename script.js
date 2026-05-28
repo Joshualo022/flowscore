@@ -110,7 +110,7 @@ function showBo0thoven(message, { autoHide = true } = {}) {
   elements.botToast.hidden = false;
 
   if (autoHide) {
-    botHideTimer = window.setTimeout(hideBo0thoven, 8500);
+    botHideTimer = window.setTimeout(hideBo0thoven, 7000);
   }
 }
 
