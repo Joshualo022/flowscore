@@ -15,6 +15,8 @@ const state = {
   scrollPosition: 0,
   renderId: 0,
   resizeTimer: null,
+  zoomDragging: false,
+  zoomCommitTimer: null,
 };
 
 const elements = {
@@ -217,7 +219,26 @@ function changeZoom(value) {
 
 async function commitZoom() {
   if (!state.pdf) return;
+  window.clearTimeout(state.zoomCommitTimer);
+  if (Math.abs(state.zoom - state.renderedZoom) < 0.001) return;
   await renderPdf({ preserveScroll: true });
+}
+
+function scheduleZoomCommit() {
+  window.clearTimeout(state.zoomCommitTimer);
+  state.zoomCommitTimer = window.setTimeout(() => {
+    commitZoom();
+  }, 500);
+}
+
+function previewZoom(value) {
+  changeZoom(value);
+
+  if (!state.pdf) return;
+
+  stopScroll();
+  applyZoomPreview();
+  setStatus("Previewing page size. Release to render.");
 }
 
 elements.pdfInput.addEventListener("change", (event) => {
@@ -240,17 +261,36 @@ elements.speedRange.addEventListener("input", (event) => {
   changeSpeed(event.target.value);
 });
 
-elements.zoomRange.addEventListener("input", (event) => {
-  changeZoom(event.target.value);
-  if (state.pdf) {
-    stopScroll();
-    applyZoomPreview();
-    setStatus("Previewing page size. Release to render.");
+elements.speedRange.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+    event.preventDefault();
   }
 });
 
-elements.zoomRange.addEventListener("change", async () => {
-  await commitZoom();
+elements.zoomRange.addEventListener("pointerdown", () => {
+  state.zoomDragging = true;
+  window.clearTimeout(state.zoomCommitTimer);
+});
+
+elements.zoomRange.addEventListener("input", (event) => {
+  previewZoom(event.target.value);
+
+  if (!state.zoomDragging) {
+    scheduleZoomCommit();
+  }
+});
+
+elements.zoomRange.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+    event.preventDefault();
+  }
+});
+
+window.addEventListener("pointerup", () => {
+  if (!state.zoomDragging) return;
+
+  state.zoomDragging = false;
+  commitZoom();
 });
 
 elements.backButton.addEventListener("click", () => {
@@ -273,6 +313,14 @@ window.addEventListener("keydown", (event) => {
   if (event.code === "Space" && state.pdf) {
     event.preventDefault();
     state.playing ? stopScroll() : startScroll();
+  }
+
+  if ((event.key === "ArrowUp" || event.key === "ArrowDown") && state.pdf) {
+    event.preventDefault();
+  }
+
+  if (event.target === elements.zoomRange) {
+    return;
   }
 
   if (event.key === "ArrowRight") {
