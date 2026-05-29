@@ -474,6 +474,31 @@ button:disabled {
   font-weight: 700;
 }
 
+.label-title {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-width: 0;
+}
+
+.inline-tool {
+  min-height: auto;
+  border: 0;
+  background: transparent;
+  color: #8a8075;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.inline-tool:hover {
+  background: transparent;
+  color: #2d2a25;
+  transform: none;
+}
+
 output {
   color: #7c4f2d;
 }
@@ -481,6 +506,75 @@ output {
 input[type="range"] {
   width: 100%;
   accent-color: #7c4f2d;
+}
+
+.pace-calculator {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(33, 31, 27, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.62);
+}
+
+.pace-calculator[hidden] {
+  display: none;
+}
+
+.mini-field {
+  display: grid;
+  gap: 6px;
+}
+
+.mini-field label {
+  color: #6a6258;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.mini-field input {
+  min-width: 0;
+  min-height: 38px;
+  width: 100%;
+  border: 1px solid rgba(33, 31, 27, 0.22);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: #fffaf1;
+  color: #2d2a25;
+}
+
+.time-signature-inputs {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-signature-inputs span {
+  color: #7b766d;
+  font-weight: 800;
+}
+
+.secondary-action {
+  grid-column: span 2;
+  min-height: 40px;
+  background: #fffaf1;
+  color: #2d2a25;
+  font-weight: 800;
+}
+
+.secondary-action:hover {
+  background: #efe7d9;
+  color: #2d2a25;
+}
+
+.calculator-result {
+  grid-column: span 2;
+  margin: 0;
+  color: #706a61;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .button-grid {

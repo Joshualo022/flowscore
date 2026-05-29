@@ -80,10 +80,73 @@
 
         <div class="control-group">
           <div class="label-row">
-            <label for="speedRange">Scroll pace</label>
+            <div class="label-title">
+              <label for="speedRange">Scroll pace</label>
+              <button
+                class="inline-tool"
+                id="paceCalcToggle"
+                type="button"
+                aria-expanded="false"
+                aria-controls="paceCalculator"
+              >
+                calculate
+              </button>
+            </div>
             <output id="speedValue" for="speedRange">24 px/s</output>
           </div>
           <input id="speedRange" type="range" min="4" max="90" value="24" />
+          <div class="pace-calculator" id="paceCalculator" hidden>
+            <div class="mini-field">
+              <label for="calcBpm">BPM (quarter)</label>
+              <input id="calcBpm" type="number" min="20" max="260" value="84" inputmode="decimal" />
+            </div>
+            <div class="mini-field">
+              <label>Time signature</label>
+              <div class="time-signature-inputs">
+                <input
+                  id="calcBeats"
+                  type="number"
+                  min="1"
+                  max="16"
+                  value="4"
+                  aria-label="Beats per measure"
+                  inputmode="numeric"
+                />
+                <span>/</span>
+                <input
+                  id="calcBeatUnit"
+                  type="number"
+                  min="1"
+                  max="16"
+                  value="4"
+                  aria-label="Beat unit"
+                  inputmode="numeric"
+                />
+              </div>
+            </div>
+            <div class="mini-field">
+              <label for="calcMeasuresLine">Measures per line</label>
+              <input
+                id="calcMeasuresLine"
+                type="number"
+                min="1"
+                max="16"
+                step="0.5"
+                value="4"
+                inputmode="decimal"
+              />
+            </div>
+            <div class="mini-field">
+              <label for="calcLinesPage">Lines per sheet</label>
+              <input id="calcLinesPage" type="number" min="1" max="20" value="5" inputmode="numeric" />
+            </div>
+            <button class="secondary-action" id="paceCalcApply" type="button">
+              Use calculated pace
+            </button>
+            <p class="calculator-result" id="paceCalcResult">
+              Open a PDF first for the most accurate pace.
+            </p>
+          </div>
         </div>
 
         <div class="control-group">

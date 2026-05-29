@@ -31,6 +31,15 @@ const elements = {
   statusLine: document.querySelector("#statusLine"),
   speedRange: document.querySelector("#speedRange"),
   speedValue: document.querySelector("#speedValue"),
+  paceCalcToggle: document.querySelector("#paceCalcToggle"),
+  paceCalculator: document.querySelector("#paceCalculator"),
+  calcBpm: document.querySelector("#calcBpm"),
+  calcBeats: document.querySelector("#calcBeats"),
+  calcBeatUnit: document.querySelector("#calcBeatUnit"),
+  calcMeasuresLine: document.querySelector("#calcMeasuresLine"),
+  calcLinesPage: document.querySelector("#calcLinesPage"),
+  paceCalcApply: document.querySelector("#paceCalcApply"),
+  paceCalcResult: document.querySelector("#paceCalcResult"),
   zoomRange: document.querySelector("#zoomRange"),
   zoomValue: document.querySelector("#zoomValue"),
   backButton: document.querySelector("#backButton"),
@@ -262,6 +271,10 @@ async function renderPdf({ preserveScroll = false } = {}) {
       state.pdf.numPages === 1 ? "page" : "pages"
     }.`,
   );
+
+  if (!elements.paceCalculator.hidden) {
+    updatePaceCalculation();
+  }
 }
 
 function revealViewer() {
@@ -310,6 +323,66 @@ function changeSpeed(value) {
   state.speed = Number(value);
   elements.speedRange.value = String(state.speed);
   elements.speedValue.value = `${state.speed} px/s`;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getPageAdvance() {
+  const firstPage = elements.paper.querySelector(".page-canvas");
+  if (!firstPage) return null;
+
+  const paperStyles = window.getComputedStyle(elements.paper);
+  const pageGap = Number.parseFloat(paperStyles.rowGap || paperStyles.gap) || 0;
+  return firstPage.getBoundingClientRect().height + pageGap;
+}
+
+function calculatePracticePace() {
+  const bpm = Number(elements.calcBpm.value);
+  const beatsPerMeasure = Number(elements.calcBeats.value);
+  const beatUnit = Number(elements.calcBeatUnit.value);
+  const measuresPerLine = Number(elements.calcMeasuresLine.value);
+  const linesPerPage = Number(elements.calcLinesPage.value);
+  const pageAdvance = getPageAdvance();
+
+  if (![bpm, beatsPerMeasure, beatUnit, measuresPerLine, linesPerPage].every((value) => value > 0)) {
+    return { error: "Enter positive values for every field." };
+  }
+
+  if (!pageAdvance) {
+    return { error: "Open a PDF first so FlowScore can measure the page." };
+  }
+
+  const measuresPerPage = measuresPerLine * linesPerPage;
+  const quarterBeatsPerMeasure = beatsPerMeasure * (4 / beatUnit);
+  const secondsPerPage = (60 / bpm) * quarterBeatsPerMeasure * measuresPerPage;
+  const rawPace = pageAdvance / secondsPerPage;
+  const minSpeed = Number(elements.speedRange.min);
+  const maxSpeed = Number(elements.speedRange.max);
+  const pace = Math.round(clamp(rawPace, minSpeed, maxSpeed));
+
+  return { measuresPerPage, pace, rawPace, secondsPerPage };
+}
+
+function updatePaceCalculation({ apply = false } = {}) {
+  const result = calculatePracticePace();
+
+  if (result.error) {
+    elements.paceCalcResult.textContent = result.error;
+    return;
+  }
+
+  if (apply) {
+    changeSpeed(result.pace);
+  }
+
+  const capped =
+    Math.round(result.rawPace) !== result.pace ? ` Capped at ${result.pace} px/s.` : "";
+
+  elements.paceCalcResult.textContent = `${result.pace} px/s for about ${Math.round(
+    result.secondsPerPage,
+  )} seconds per sheet.${capped}`;
 }
 
 function changeZoom(value) {
@@ -364,6 +437,30 @@ elements.controlsModeToggle.addEventListener("click", () => {
 
 elements.speedRange.addEventListener("input", (event) => {
   changeSpeed(event.target.value);
+});
+
+elements.paceCalcToggle.addEventListener("click", () => {
+  const expanded = elements.paceCalculator.hidden;
+  elements.paceCalculator.hidden = !expanded;
+  elements.paceCalcToggle.setAttribute("aria-expanded", String(expanded));
+
+  if (expanded) {
+    updatePaceCalculation();
+  }
+});
+
+[
+  elements.calcBpm,
+  elements.calcBeats,
+  elements.calcBeatUnit,
+  elements.calcMeasuresLine,
+  elements.calcLinesPage,
+].forEach((input) => {
+  input.addEventListener("input", () => updatePaceCalculation());
+});
+
+elements.paceCalcApply.addEventListener("click", () => {
+  updatePaceCalculation({ apply: true });
 });
 
 elements.speedRange.addEventListener("keydown", (event) => {

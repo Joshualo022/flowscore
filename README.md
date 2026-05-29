@@ -15,6 +15,7 @@ while practicing.
 - Show loading, ready, and PDF error states.
 - Start, pause, and resume steady autoscroll.
 - Adjust scroll pace and page size.
+- Estimate scroll pace from BPM and page layout.
 - Jump back ten seconds or return to the top.
 - Use keyboard shortcuts: Space to play/pause, Arrow Left/Right to change speed,
   and Home to return to the top.
