@@ -158,7 +158,14 @@
         </div>
 
         <div class="button-grid">
-          <button id="backButton" type="button" disabled>-10s</button>
+          <button id="backButton" type="button" disabled>
+            <span aria-hidden="true">↶ 10</span>
+            <span class="sr-only">Back 10 seconds</span>
+          </button>
+          <button id="forwardButton" type="button" disabled>
+            <span aria-hidden="true">10 ↷</span>
+            <span class="sr-only">Forward 10 seconds</span>
+          </button>
           <button id="topButton" type="button" disabled>Top</button>
         </div>
 

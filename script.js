@@ -13,6 +13,8 @@ const state = {
   animationId: null,
   lastFrameTime: 0,
   scrollPosition: 0,
+  autoScrollTarget: 0,
+  userScrollIntent: false,
   renderId: 0,
   resizeTimer: null,
   zoomDragging: false,
@@ -43,6 +45,7 @@ const elements = {
   zoomRange: document.querySelector("#zoomRange"),
   zoomValue: document.querySelector("#zoomValue"),
   backButton: document.querySelector("#backButton"),
+  forwardButton: document.querySelector("#forwardButton"),
   topButton: document.querySelector("#topButton"),
   controlsModeToggle: document.querySelector("#controlsModeToggle"),
   botToast: document.querySelector("#botToast"),
@@ -74,6 +77,7 @@ let botHideTimer = null;
 function setControlsEnabled(enabled) {
   elements.playButton.disabled = !enabled;
   elements.backButton.disabled = !enabled;
+  elements.forwardButton.disabled = !enabled;
   elements.topButton.disabled = !enabled;
   elements.speedRange.disabled = !enabled;
   elements.zoomRange.disabled = !enabled;
@@ -90,6 +94,10 @@ function updatePlayLabel() {
 function setStatus(message, tone = "") {
   elements.statusLine.textContent = message;
   elements.statusLine.dataset.tone = tone;
+}
+
+function markManualScrollIntent() {
+  state.userScrollIntent = true;
 }
 
 function miniControlsEnabled() {
@@ -191,6 +199,7 @@ function tick(timestamp) {
   const elapsedSeconds = (timestamp - state.lastFrameTime) / 1000;
   state.lastFrameTime = timestamp;
   state.scrollPosition += state.speed * elapsedSeconds;
+  state.autoScrollTarget = state.scrollPosition;
   elements.viewer.scrollTop = state.scrollPosition;
 
   const atBottom =
@@ -497,11 +506,20 @@ window.addEventListener("pointerup", () => {
 
 elements.backButton.addEventListener("click", () => {
   state.scrollPosition = Math.max(0, elements.viewer.scrollTop - state.speed * 10);
+  state.autoScrollTarget = state.scrollPosition;
+  elements.viewer.scrollTop = state.scrollPosition;
+});
+
+elements.forwardButton.addEventListener("click", () => {
+  const maxScroll = Math.max(0, elements.viewer.scrollHeight - elements.viewer.clientHeight);
+  state.scrollPosition = Math.min(maxScroll, elements.viewer.scrollTop + state.speed * 10);
+  state.autoScrollTarget = state.scrollPosition;
   elements.viewer.scrollTop = state.scrollPosition;
 });
 
 elements.topButton.addEventListener("click", () => {
   state.scrollPosition = 0;
+  state.autoScrollTarget = 0;
   elements.viewer.scrollTop = 0;
 });
 
@@ -519,10 +537,22 @@ elements.botWake.addEventListener("click", () => {
   showBo0thoven("Systems back online. I will keep my comments tasteful.");
 });
 
+elements.viewer.addEventListener("wheel", markManualScrollIntent, { passive: true });
+elements.viewer.addEventListener("touchstart", markManualScrollIntent, { passive: true });
+elements.viewer.addEventListener("pointerdown", markManualScrollIntent);
+
 elements.viewer.addEventListener("scroll", () => {
-  if (!state.playing) {
+  const userMovedDuringPlayback =
+    state.playing &&
+    (state.userScrollIntent || Math.abs(elements.viewer.scrollTop - state.autoScrollTarget) > 2);
+
+  if (!state.playing || userMovedDuringPlayback) {
     state.scrollPosition = elements.viewer.scrollTop;
+    state.autoScrollTarget = state.scrollPosition;
+    state.lastFrameTime = 0;
   }
+
+  state.userScrollIntent = false;
 });
 
 window.addEventListener("keydown", (event) => {
@@ -552,6 +582,7 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "Home" && state.pdf) {
     event.preventDefault();
     state.scrollPosition = 0;
+    state.autoScrollTarget = 0;
     elements.viewer.scrollTop = 0;
   }
 });
